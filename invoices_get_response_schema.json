@@ -1,0 +1,1026 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Schema for GET /invoices",
+  "description": "Invoice is a business document which can contain attachments.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Message version number."
+    },
+    "fileRefs": {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "additionalProperties" : false,
+        "properties" : {
+          "refId" : {
+            "type" : "string",
+            "description" : "Unique file identifier received after storing file into Basware Network."
+          },
+          "fileType" : {
+            "type" : "string",
+            "description" : "File type. Possible values are imageFile, attachmentFile and dataFile."
+          }
+        },
+        "required" : [ "refId", "fileType" ]
+      }
+    },
+    "links": {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "description" : "Links related to the business document",
+        "properties" : {
+          "rel" : {
+            "type" : "string",
+            "description" : "Relation type for the URL in question. Possible values are file.",
+            "default" : "file"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "Link between the completed call and a future call. The URI is a fully formed URI, which needs also the method field"
+          },
+          "method" : {
+            "type" : "string",
+            "enum" : [ "GET", "POST" ],
+            "description" : "HTTP methods required to interact with the provided URL",
+            "default" : "GET"
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Object holding the business content of the Invoice. Content is at some level based on Universal Business Language (UBL) standard version 2.1. It has also been extended by Basware so it is not strictly UBL.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "External system identifier of the business document."
+        },
+        "idSchemeId": {
+          "type": "string",
+          "description": "External system specific identifier of the system identifier element. If the source business document has any matching element, it should be used."
+        },
+        "issueDate": {
+          "type": "string",
+          "description": "The date when the Invoice was issued. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty.",
+          "pattern": "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+        },
+        "documentCurrencyCode": {
+          "type": "string",
+          "description": "Currency presentation of the Invoice document. Valid values must be ISO 4217 Alpha format."
+        },
+        "note": {
+          "type": "string",
+          "description": "Free-form text pertinent to this document, conveying information that is not contained explicitly in other structures."
+        },
+        "allowanceCharge": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "freight" : {
+              "type" : "number",
+              "description" : "Freight charge."
+            },
+            "handling" : {
+              "type" : "number",
+              "description" : "Handling charge."
+            }
+          }
+        },
+        "orderReference": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "id" : {
+              "type" : "string",
+              "description" : "Order number reference on the business document. Identifies the referenced order assigned by the buyer."
+            },
+            "schemeId" : {
+              "type" : "string",
+              "description" : "External system specific identifier of the order system identifier element. If the source business document has any matching element, it should be used."
+            },
+            "customerReference" : {
+              "type" : "string",
+              "description" : "Customer Reference Identifier (CRI) when using a purchasing card."
+            },
+            "salesOrderId" : {
+              "type" : "string",
+              "description" : "Sales order identifier."
+            }
+          },
+          "required" : [ "id" ]
+        },
+        "billingReference": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "id" : {
+              "type" : "string",
+              "description" : "External system identifier of the billing entity referenced by the Business Document."
+            },
+            "schemeId" : {
+              "type" : "string",
+              "description" : "External system specific identifier of the billing reference system identifier element. If the source business document has any matching element, it should be used."
+            }
+          },
+          "required" : [ "id" ]
+        },
+        "contractDocumentReference": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "id" : {
+              "type" : "string",
+              "description" : "External system identifier of the contract referenced by the Business Document (i.e. buyers contract number). Mandatory field if the customer demands that the goods or services invoiced refer to a contract number defined by the customer to which he wants to assign the Business Document. Is demanded for example in service and maintenance agreements for which there is generally no explicit order."
+            },
+            "schemeId" : {
+              "type" : "string",
+              "description" : "External system specific identifier of the contract system identifier element. If the source business document has any matching element, it should be used."
+            }
+          },
+          "required" : [ "id" ]
+        },
+        "additionalDocumentReference": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "id" : {
+              "type" : "string",
+              "description" : "An identifier for the referenced document (i.e. bumid)."
+            },
+            "schemeId" : {
+              "type" : "string",
+              "description" : "External system specific identifier of the invoicing system identifier element. If the source business document has any matching element, it should be used."
+            },
+            "issueDate" : {
+              "type" : "string",
+              "description" : "Date when the referenced document was issued. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty.",
+              "pattern" : "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+            },
+            "typeCode" : {
+              "type" : "string",
+              "description" : "The type of document being referenced, expressed as a code, for example to reference to an Invoice document, code is 380."
+            }
+          },
+          "required" : [ "id" ]
+        },
+        "accountingSupplierParty": {
+          "description": "Party that is the accountable supplier of the goods/services in the referred business document.",
+          "type" : "object",
+          "properties" : {
+            "endpoint" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An array holding the external system identifiers of the party. Used for defining customer, supplier and delivery party data.",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : "An object holding the external system identifier of the party."
+                },
+                "schemeId" : {
+                  "type" : "string",
+                  "description" : "External global identifier of the id identifier element."
+                }
+              },
+              "required" : [ "id" ]
+            },
+            "partyIdentification" : {
+              "type" : "array",
+              "description" : "An array holding the external system identifiers of the party. Used for defining customer, supplier and delivery party data.",
+              "items" : {
+                "type" : "object",
+                "description" : "An object holding a party identification.",
+                "properties" : {
+                  "id" : {
+                    "type" : "string",
+                    "description" : "An object holding the external system identifier of the party."
+                  },
+                  "schemeId" : {
+                    "type" : "string",
+                    "description" : "External global identifier of the id identifier element."
+                  }
+                },
+                "required" : [ "id" ],
+                "additionalProperties" : false
+              }
+            },
+            "partyName" : {
+              "type" : "string",
+              "description" : "A name of the party. Used for defining supplier, customer and delivery party names."
+            },
+            "postalAddress" : {
+              "description" : "An object containing address information. Used for defining supplier party, customer party and delivery party address data.",
+              "properties" : {
+                "cityName" : {
+                  "type" : "string",
+                  "description" : "The name of the city, town or village in the postal address of the party."
+                },
+                "postalZone" : {
+                  "type" : "string",
+                  "description" : "The postal code of the area in the postal address of the party. The identifier for an addressable group of properties according to the relevant national postal service, such as a ZIP code or Post Code."
+                },
+                "addressLine" : {
+                  "type" : "string",
+                  "description" : "The address line of the postal address of the party."
+                },
+                "addressLine2" : {
+                  "type" : "string",
+                  "description" : "The second address line of the postal address of the party."
+                },
+                "locality" : {
+                  "type" : "string",
+                  "description" : "Neighbourhood or district within town or city. Required in UK if a similar road name exists within a post town area."
+                },
+                "countrySubentity" : {
+                  "type" : "string",
+                  "description" : "The sub-entity of the area in the postal address."
+                },
+                "countryId" : {
+                  "type" : "string",
+                  "description" : "The country of the postal address of party. Valid values: ISO3166-1 alpha-2 values can be used."
+                }
+              },
+              "additionalProperties" : false
+            },
+            "partyTaxScheme" : {
+              "type" : "object",
+              "description" : "Information about taxes. Notice that only one tax scheme is used, although there could be multiple.",
+              "properties" : {
+                "company" : {
+                  "type" : "object",
+                  "description" : "Information about the company taxes.",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string",
+                      "description" : "A tax identifier for a company. The identifier assigned for tax purposes to a party by the taxation authority."
+                    },
+                    "schemeId" : {
+                      "type" : "string",
+                      "description" : "External global identifier of the endpoint identifier element. Valid values: Country specific agency schema, example DK:CVR for Denmark."
+                    }
+                  },
+                  "additionalProperties" : false
+                }
+              },
+              "additionalProperties" : false
+            },
+            "contact" : {
+              "type" : "object",
+              "description" : "An object containing information about contacts. Used for defining the company contact data",
+              "properties" : {
+                "name" : {
+                  "type" : "string",
+                  "description" : "A contact name of the party."
+                },
+                "telephone" : {
+                  "type" : "string",
+                  "description" : "A telephone number of the contact of the party."
+                },
+                "telefax" : {
+                  "type" : "string",
+                  "description" : "A fax number of the contact of the party."
+                },
+                "electronicMail" : {
+                  "type" : "string",
+                  "description" : "An email of the contact of the party."
+                }
+              },
+              "additionalProperties" : false
+            }
+          },
+          "required" : [ "partyName" ],
+          "additionalProperties" : false
+        },
+        "accountingCustomerParty": {
+          "description": "Party that is the accountable buyer of the goods/services in the referred business document.",
+          "type" : "object",
+          "properties" : {
+            "endpoint" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An array holding the external system identifiers of the party. Used for defining customer, supplier and delivery party data.",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : "An object holding the external system identifier of the party."
+                },
+                "schemeId" : {
+                  "type" : "string",
+                  "description" : "External global identifier of the id identifier element."
+                }
+              },
+              "required" : [ "id" ]
+            },
+            "partyIdentification" : {
+              "type" : "array",
+              "description" : "An array holding the external system identifiers of the party. Used for defining customer, supplier and delivery party data.",
+              "items" : {
+                "type" : "object",
+                "description" : "An object holding a party identification.",
+                "properties" : {
+                  "id" : {
+                    "type" : "string",
+                    "description" : "An object holding the external system identifier of the party."
+                  },
+                  "schemeId" : {
+                    "type" : "string",
+                    "description" : "External global identifier of the id identifier element."
+                  }
+                },
+                "required" : [ "id" ],
+                "additionalProperties" : false
+              }
+            },
+            "partyName" : {
+              "type" : "string",
+              "description" : "A name of the party. Used for defining supplier, customer and delivery party names."
+            },
+            "postalAddress" : {
+              "description" : "An object containing address information. Used for defining supplier party, customer party and delivery party address data.",
+              "properties" : {
+                "cityName" : {
+                  "type" : "string",
+                  "description" : "The name of the city, town or village in the postal address of the party."
+                },
+                "postalZone" : {
+                  "type" : "string",
+                  "description" : "The postal code of the area in the postal address of the party. The identifier for an addressable group of properties according to the relevant national postal service, such as a ZIP code or Post Code."
+                },
+                "addressLine" : {
+                  "type" : "string",
+                  "description" : "The address line of the postal address of the party."
+                },
+                "addressLine2" : {
+                  "type" : "string",
+                  "description" : "The second address line of the postal address of the party."
+                },
+                "locality" : {
+                  "type" : "string",
+                  "description" : "Neighbourhood or district within town or city. Required in UK if a similar road name exists within a post town area."
+                },
+                "countrySubentity" : {
+                  "type" : "string",
+                  "description" : "The sub-entity of the area in the postal address."
+                },
+                "countryId" : {
+                  "type" : "string",
+                  "description" : "The country of the postal address of party. Valid values: ISO3166-1 alpha-2 values can be used."
+                }
+              },
+              "additionalProperties" : false
+            },
+            "partyTaxScheme" : {
+              "type" : "object",
+              "description" : "Information about taxes. Notice that only one tax scheme is used, although there could be multiple.",
+              "properties" : {
+                "company" : {
+                  "type" : "object",
+                  "description" : "Information about the company taxes.",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string",
+                      "description" : "A tax identifier for a company. The identifier assigned for tax purposes to a party by the taxation authority."
+                    },
+                    "schemeId" : {
+                      "type" : "string",
+                      "description" : "External global identifier of the endpoint identifier element. Valid values: Country specific agency schema, example DK:CVR for Denmark."
+                    }
+                  },
+                  "additionalProperties" : false
+                }
+              },
+              "additionalProperties" : false
+            },
+            "contact" : {
+              "type" : "object",
+              "description" : "An object containing information about contacts. Used for defining the company contact data",
+              "properties" : {
+                "name" : {
+                  "type" : "string",
+                  "description" : "A contact name of the party."
+                },
+                "telephone" : {
+                  "type" : "string",
+                  "description" : "A telephone number of the contact of the party."
+                },
+                "telefax" : {
+                  "type" : "string",
+                  "description" : "A fax number of the contact of the party."
+                },
+                "electronicMail" : {
+                  "type" : "string",
+                  "description" : "An email of the contact of the party."
+                }
+              },
+              "additionalProperties" : false
+            }
+          },
+          "required" : [ "partyName" ],
+          "additionalProperties" : false
+        },
+        "delivery": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "actualDeliveryDate" : {
+              "type" : "string",
+              "description" : "Date when the goods/services are delivered. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty. ",
+              "pattern" : "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+            }
+          }
+        },
+        "deliveryParty": {
+          "description": "Party that is responsible for the delivery of the goods/services in the referred business document.",
+          "type" : "object",
+          "properties" : {
+            "endpoint" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An array holding the external system identifiers of the party. Used for defining customer, supplier and delivery party data.",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : "An object holding the external system identifier of the party."
+                },
+                "schemeId" : {
+                  "type" : "string",
+                  "description" : "External global identifier of the id identifier element."
+                }
+              },
+              "required" : [ "id" ]
+            },
+            "partyIdentification" : {
+              "type" : "array",
+              "description" : "An array holding the external system identifiers of the party. Used for defining customer, supplier and delivery party data.",
+              "items" : {
+                "type" : "object",
+                "description" : "An object holding a party identification.",
+                "properties" : {
+                  "id" : {
+                    "type" : "string",
+                    "description" : "An object holding the external system identifier of the party."
+                  },
+                  "schemeId" : {
+                    "type" : "string",
+                    "description" : "External global identifier of the id identifier element."
+                  }
+                },
+                "required" : [ "id" ],
+                "additionalProperties" : false
+              }
+            },
+            "partyName" : {
+              "type" : "string",
+              "description" : "A name of the party. Used for defining supplier, customer and delivery party names."
+            },
+            "postalAddress" : {
+              "description" : "An object containing address information. Used for defining supplier party, customer party and delivery party address data.",
+              "properties" : {
+                "cityName" : {
+                  "type" : "string",
+                  "description" : "The name of the city, town or village in the postal address of the party."
+                },
+                "postalZone" : {
+                  "type" : "string",
+                  "description" : "The postal code of the area in the postal address of the party. The identifier for an addressable group of properties according to the relevant national postal service, such as a ZIP code or Post Code."
+                },
+                "addressLine" : {
+                  "type" : "string",
+                  "description" : "The address line of the postal address of the party."
+                },
+                "addressLine2" : {
+                  "type" : "string",
+                  "description" : "The second address line of the postal address of the party."
+                },
+                "locality" : {
+                  "type" : "string",
+                  "description" : "Neighbourhood or district within town or city. Required in UK if a similar road name exists within a post town area."
+                },
+                "countrySubentity" : {
+                  "type" : "string",
+                  "description" : "The sub-entity of the area in the postal address."
+                },
+                "countryId" : {
+                  "type" : "string",
+                  "description" : "The country of the postal address of party. Valid values: ISO3166-1 alpha-2 values can be used."
+                }
+              },
+              "additionalProperties" : false
+            },
+            "partyTaxScheme" : {
+              "type" : "object",
+              "description" : "Information about taxes. Notice that only one tax scheme is used, although there could be multiple.",
+              "properties" : {
+                "company" : {
+                  "type" : "object",
+                  "description" : "Information about the company taxes.",
+                  "properties" : {
+                    "id" : {
+                      "type" : "string",
+                      "description" : "A tax identifier for a company. The identifier assigned for tax purposes to a party by the taxation authority."
+                    },
+                    "schemeId" : {
+                      "type" : "string",
+                      "description" : "External global identifier of the endpoint identifier element. Valid values: Country specific agency schema, example DK:CVR for Denmark."
+                    }
+                  },
+                  "additionalProperties" : false
+                }
+              },
+              "additionalProperties" : false
+            },
+            "contact" : {
+              "type" : "object",
+              "description" : "An object containing information about contacts. Used for defining the company contact data",
+              "properties" : {
+                "name" : {
+                  "type" : "string",
+                  "description" : "A contact name of the party."
+                },
+                "telephone" : {
+                  "type" : "string",
+                  "description" : "A telephone number of the contact of the party."
+                },
+                "telefax" : {
+                  "type" : "string",
+                  "description" : "A fax number of the contact of the party."
+                },
+                "electronicMail" : {
+                  "type" : "string",
+                  "description" : "An email of the contact of the party."
+                }
+              },
+              "additionalProperties" : false
+            }
+          },
+          "required" : [ "partyName" ],
+          "additionalProperties" : false
+        },
+        "paymentMeans": {
+          "description": "An object holding the available payment means.",
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "paymentMeansCode" : {
+              "type" : "string",
+              "description" : "A code that identifies how the payment can be done. Valid values: UN/ECE 4461 code represented as string."
+            },
+            "paymentDueDate" : {
+              "type" : "string",
+              "description" : "Date when the business document is due for the payment means. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty.",
+              "pattern" : "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+            },
+            "paymentIdentifier" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An identifier for a payment made using this means of payment.",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : "The id value of payment identifier."
+                },
+                "schemeId" : {
+                  "type" : "string",
+                  "description" : "Scheme which identifies the type of payment identifier. Possible values are SPY, ISO."
+                }
+              },
+              "required" : [ "id" ]
+            },
+            "financialAccount" : {
+              "type" : "array",
+              "description" : "Array holding the financial account data",
+              "items" : {
+                "type" : "object",
+                "additionalProperties" : false,
+                "description" : "Object holding the financial account data",
+                "properties" : {
+                  "financialInstitutionName" : {
+                    "type" : "string",
+                    "description" : "The name of financial institution."
+                  },
+                  "financialInstitutionId" : {
+                    "type" : "string",
+                    "description" : "Identifier of financial institution."
+                  },
+                  "financialInstitutionIdSchemeId" : {
+                    "type" : "string",
+                    "description" : "The external identifier of the financial institution id identifier element."
+                  },
+                  "financialInstitutionBranchId" : {
+                    "type" : "string",
+                    "description" : "The identifier of financial institution branch, for example 342-085. This field is typically used by institutions in Australia and New Zealand."
+                  },
+                  "financialInstitutionBranchSchemeId" : {
+                    "type" : "string",
+                    "description" : "The scheme identifier of financial institution branch. For example for an Australian institutions, possible scheme is BSB."
+                  },
+                  "ids" : {
+                    "type" : "array",
+                    "description" : "Array holding ids",
+                    "items" : {
+                      "type" : "object",
+                      "additionalProperties" : false,
+                      "description" : "Object holding identifier data",
+                      "properties" : {
+                        "id" : {
+                          "type" : "string",
+                          "description" : "Identifier."
+                        },
+                        "schemeId" : {
+                          "type" : "string",
+                          "description" : "External identifier."
+                        }
+                      },
+                      "required" : [ "id" ]
+                    }
+                  },
+                  "accounting" : {
+                    "type" : "object",
+                    "title" : "Accounting",
+                    "description" : "Accounting related content.",
+                    "properties" : {
+                      "virtualBankBarcode" : {
+                        "type" : "object",
+                        "title" : "VirtualBankBarcode",
+                        "description" : "Virtual bar code can be added to the business document that should be printed.",
+                        "properties" : {
+                          "id" : {
+                            "type" : "string",
+                            "title" : "Virtual bank bar code",
+                            "description" : "Identifier of the virtual bar code. "
+                          },
+                          "schemeId" : {
+                            "type" : "string",
+                            "title" : "SchemeId for virtual bank bar code",
+                            "description" : "Scheme identifier of the virtual bank bar code, typically country code according to ISO3166-1 alpha-2. Possible values: FI"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required" : [ "paymentMeansCode" ]
+        },
+        "paymentTerms": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "settlementPeriod" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An object holding the settlement period dates.",
+              "properties" : {
+                "startDate" : {
+                  "type" : "string",
+                  "description" : "Date when the payment terms starts. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty.",
+                  "pattern" : "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                },
+                "endDate" : {
+                  "type" : "string",
+                  "description" : "Date when the payment terms ends. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty.",
+                  "pattern" : "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                }
+              }
+            },
+            "note" : {
+              "type" : "string",
+              "description" : "Free-form text applying to the payment terms. This field may contain notes or any other similar information that is not contained explicitly in another structure."
+            },
+            "penaltySurchargePercent" : {
+              "type" : "number",
+              "description" : "Penalty surcharge percent amount."
+            }
+          }
+        },
+        "taxTotal": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "currencyId" : {
+              "type" : "string",
+              "description" : "A code that identifies the currency of the total payable amount. Valid values: ISO 4217 code represented as string."
+            },
+            "amount" : {
+              "type" : "number",
+              "description" : "Total amount of the taxes. The total tax amount for particular tax scheme e.g. VAT; the sum of each of the tax subtotals for each tax category within the tax scheme."
+            },
+            "taxSubTotal" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "additionalProperties" : false,
+                "description" : "An object holding the information about tax.",
+                "properties" : {
+                  "currencyId" : {
+                    "type" : "string",
+                    "description" : "A code that identifies the currency of the tax subtotal. Valid values: ISO 4217 code represented as string."
+                  },
+                  "amount" : {
+                    "type" : "number",
+                    "description" : "Total amount of the taxes."
+                  },
+                  "percent" : {
+                    "type" : "number",
+                    "description" : "The tax rate for the category, expressed as a percentage."
+                  },
+                  "taxableAmount" : {
+                    "type" : "number",
+                    "description" : "Basis of the taxes. The net amount to which the tax percent (rate) is applied to calculate the tax amount."
+                  }
+                },
+                "required" : [ "currencyId", "amount" ]
+              }
+            }
+          },
+          "required" : [ "currencyId", "amount" ]
+        },
+        "legalMonetaryTotal": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "lineExtensionAmount" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An object holding total amount of line extensions.",
+              "properties" : {
+                "currencyId" : {
+                  "type" : "string",
+                  "description" : "A code that identifies the currency of the total line extension amount. Valid values: ISO 4217 code represented as string."
+                },
+                "amount" : {
+                  "type" : "number",
+                  "description" : "Total amount of line extensions."
+                }
+              },
+              "required" : [ "currencyId", "amount" ]
+            },
+            "payableAmount" : {
+              "type" : "object",
+              "additionalProperties" : false,
+              "description" : "An object holding total payable amount of line extensions.",
+              "properties" : {
+                "currencyId" : {
+                  "type" : "string",
+                  "description" : "A code that identifies the currency of the total payable amount. Valid values: ISO 4217 code represented as string."
+                },
+                "amount" : {
+                  "type" : "number",
+                  "description" : "The total amount to be paid."
+                }
+              },
+              "required" : [ "currencyId", "amount" ]
+            }
+          },
+          "required" : [ "payableAmount" ]
+        },
+        "buyerReference": {
+          "type" : "object",
+          "additionalProperties" : false,
+          "properties" : {
+            "id" : {
+              "type" : "string",
+              "description" : "The id value of the buyer reference"
+            }
+          },
+          "required" : [ "id" ]
+        },
+        "invoiceLine": {
+          "type": "array",
+          "description": "An array holding the Invoice lines.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "An object holding a Invoice line.",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "External system identifier for the Invoice line."
+              },
+              "internalId": {
+                "type": "string",
+                "description": "Internal identifier for the Invoice line."
+              },
+              "quantity": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "amount" : {
+                    "type" : "number",
+                    "description" : "The quantity of the target Business Document line items."
+                  },
+                  "amountUninvoiced" : {
+                    "type" : "number",
+                    "description" : "The available quantity of the target Business Document line item which has not been invoiced."
+                  },
+                  "unitCode" : {
+                    "type" : "string",
+                    "description" : "The unit code of the quantity of the target Business Document line item. Valid values: UN/ECE CEFACT Trade Facilitation Recommendation No.20 common code value represented as string."
+                  }
+                }
+              },
+              "serviceIndicator": {
+                "type": "boolean",
+                "description": "Flag indicating whether the line represents goods or services (true if services, false if goods)."
+              },
+              "lineExtension": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "currencyId" : {
+                    "type" : "string",
+                    "description" : "The currency of the amount."
+                  },
+                  "amount" : {
+                    "type" : "number",
+                    "description" : "The total amount for the line item, including allowance charges but net of taxes."
+                  }
+                },
+                "required" : [ "currencyId", "amount" ]
+              },
+              "item": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "description" : {
+                    "type" : "array",
+                    "description" : "An array holding the descriptions of the Business Document line items.",
+                    "items" : {
+                      "type" : "string",
+                      "description" : "Description of the Business Document line item."
+                    }
+                  },
+                  "name" : {
+                    "type" : "string",
+                    "description" : "Name of the Business Document line item.  A short name optionally given to an item, such as a name from a catalogue, as distinct from a description."
+                  },
+                  "taxPercent" : {
+                    "type" : "number",
+                    "description" : "Tax amount for the item"
+                  },
+                  "sellersItem" : {
+                    "type" : "object",
+                    "additionalProperties" : false,
+                    "description" : "An object holding a identification of the Business Documents line item as it is in sellers system.",
+                    "properties" : {
+                      "id" : {
+                        "type" : "string",
+                        "description" : "Id of the Business Document line item as it is in sellers system."
+                      },
+                      "schemeId" : {
+                        "type" : "string",
+                        "description" : "External system specific identifier of the sellers item identifier element. If the source business document has any matching element, it should be used."
+                      }
+                    },
+                    "required" : [ "id" ]
+                  }
+                }
+              },
+              "taxTotal": {
+                "type" : "array",
+                "items" : {
+                  "type" : "object",
+                  "additionalProperties" : false,
+                  "description" : "An object holding the information about tax.",
+                  "properties" : {
+                    "amount" : {
+                      "type" : "number",
+                      "description" : "Total amount of the taxes. The total tax amount for particular tax scheme e.g. VAT; the sum of each of the tax subtotals for each tax category within the tax scheme."
+                    },
+                    "currencyId" : {
+                      "type" : "string",
+                      "description" : "A code that identifies the currency of the total payable amount. Valid values: ISO 4217 code represented as string."
+                    },
+                    "transactionCurrencyTax" : {
+                      "type" : "object",
+                      "additionalProperties" : false,
+                      "description" : "An object holding transaction tax.",
+                      "properties" : {
+                        "amount" : {
+                          "type" : "number",
+                          "description" : "Amount of tax for the transaction."
+                        }
+                      },
+                      "required" : [ "amount" ]
+                    },
+                    "taxSubTotal" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "additionalProperties" : false,
+                        "description" : "An object holding the information about tax.",
+                        "properties" : {
+                          "currencyId" : {
+                            "type" : "string",
+                            "description" : "A code that identifies the currency of the tax subtotal. Valid values: ISO 4217 code represented as string."
+                          },
+                          "amount" : {
+                            "type" : "number",
+                            "description" : "Total amount of the taxes."
+                          },
+                          "percent" : {
+                            "type" : "number",
+                            "description" : "The tax rate for the category, expressed as a percentage."
+                          },
+                          "taxableAmount" : {
+                            "type" : "number",
+                            "description" : "Basis of the taxes. The net amount to which the tax percent (rate) is applied to calculate the tax amount."
+                          }
+                        },
+                        "required" : [ "currencyId", "amount" ]
+                      }
+                    }
+                  },
+                  "required" : [ "amount", "currencyId" ]
+                }
+              },
+              "price": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "amount" : {
+                    "type" : "number",
+                    "description" : "The price of the line item."
+                  },
+                  "currencyId" : {
+                    "type" : "string",
+                    "description" : "A code that identifies the currency of the line item price. Valid values: ISO 4217 code represented as string."
+                  }
+                },
+                "required" : [ "amount", "currencyId" ]
+              },
+              "delivery": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "actualDeliveryDate" : {
+                    "type" : "string",
+                    "description" : "Date when the goods/services are delivered. Valid values must be in format: CCYY-MM-DD. If the time zone is known, it must be represented with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known, it must be left empty. ",
+                    "pattern" : "^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[0-1]|0[1-9]|[1-2][0-9])(Z|[+-](?:2[0-3]|[0-1][0-9]):[0-5][0-9])?$"
+                  }
+                }
+              },
+              "orderLineReference": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "lineId" : {
+                    "type" : "string",
+                    "description" : "An identifier for the referenced order line, assigned by the buyer."
+                  },
+                  "orderReference" : {
+                    "type" : "string",
+                    "description" : "A reference to the order containing the referenced order line."
+                  }
+                },
+                "required" : [ "lineId" ]
+              },
+              "allowanceCharge": {
+                "type" : "object",
+                "additionalProperties" : false,
+                "properties" : {
+                  "chargeIndicator" : {
+                    "type" : "boolean",
+                    "description" : "Indicates whether the allowance charge is a charge (true) or a discount (false)."
+                  },
+                  "multiplierFactorNumeric" : {
+                    "type" : "number",
+                    "description" : "The factor applied to the base amount to calculate the allowance charge."
+                  },
+                  "amount" : {
+                    "type" : "number",
+                    "description" : "The allowance charge amount."
+                  }
+                },
+                "required" : [ "chargeIndicator", "amount" ]
+              }
+            },
+            "required": [
+              "id",
+              "lineExtension",
+              "item"
+            ]
+          }
+        }
+      },
+      "required": [
+        "id",
+        "issueDate",
+        "accountingSupplierParty",
+        "accountingCustomerParty",
+        "legalMonetaryTotal",
+        "invoiceLine"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "data"
+  ]
+}
