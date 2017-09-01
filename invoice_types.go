@@ -100,7 +100,10 @@ type Contact struct {
 // An array holding the external system identifiers of the party. Used for
 // defining customer, supplier and delivery party data.
 type Endpoint struct {
-	ID       string `json:"id"`
+	// An object holding the external system identifier of the party.
+	ID string `json:"id"`
+
+	// External global identifier of the id identifier element.
 	SchemeID string `json:"schemeId,omitempty"`
 }
 
@@ -167,7 +170,7 @@ type ContractDocumentReference struct {
 // Object holding the business content of the Invoice. Content is at some level
 // based on Universal Business Language (UBL) standard version 2.1. It has also
 // been extended by Basware so it is not strictly UBL.
-type Data struct {
+type Invoice struct {
 	// External system identifier of the business document.
 	ID string `json:"id"`
 
@@ -208,12 +211,16 @@ type Data struct {
 	DeliveryParty  DeliveryParty  `json:"deliveryParty,omitempty"`
 
 	// An array holding the Invoice lines.
-	InvoiceLine []InvoiceLineItem `json:"invoiceLine"`
+	InvoiceLine []InvoiceLine `json:"invoiceLine"`
 
 	LegalMonetaryTotal LegalMonetaryTotal `json:"legalMonetaryTotal"`
-	PaymentMeans       PaymentMeans       `json:"paymentMeans,omitempty"`
-	PaymentTerms       PaymentTerms       `json:"paymentTerms,omitempty"`
-	TaxTotal           TaxTotal           `json:"taxTotal,omitempty"`
+
+	// An object holding the available payment means.
+	PaymentMeans PaymentMeans `json:"paymentMeans,omitempty"`
+
+	PaymentTerms PaymentTerms `json:"paymentTerms,omitempty"`
+
+	TaxTotal TaxTotal `json:"taxTotal,omitempty"`
 }
 
 type AllowanceCharge struct {
@@ -224,7 +231,21 @@ type AllowanceCharge struct {
 	Handling float64 `json:"handling,omitempty"`
 }
 
+// func (a *AllowanceCharge) MarshalJSON() ([]byte, error) {
+// 	if zero.IsZero(a) {
+// 		return json.Marshal(nil)
+// 	}
+
+// 	type Alias AllowanceCharge
+// 	alias := Alias(*a)
+// 	return json.Marshal(alias)
+// }
+
 type Delivery struct {
+	// Date when the goods/services are delivered. Valid values must be in
+	// format: CCYY-MM-DD. If the time zone is known, it must be represented
+	// with +hh:mm or -hh:mm or Z (which means UTC). If time zone is not known,
+	// it must be left empty.
 	ActualDeliveryDate string `json:"actualDeliveryDate,omitempty"`
 }
 
@@ -284,7 +305,7 @@ type ID struct {
 }
 
 // An object holding a Invoice line.
-type InvoiceLineItem struct {
+type InvoiceLine struct {
 	// External system identifier for the Invoice line.
 	ID string `json:"id"`
 
@@ -303,21 +324,38 @@ type InvoiceLineItem struct {
 
 	TaxTotal []TaxTotalItem `json:"taxTotal,omitempty"`
 
-	AllowanceCharge    InvoiceLineItemAllowanceCharge `json:"allowanceCharge,omitempty"`
-	Delivery           InvoiceLineItemDelivery        `json:"delivery,omitempty"`
-	OrderLineReference OrderLineReference             `json:"orderLineReference,omitempty"`
-	Price              Price                          `json:"price,omitempty"`
+	AllowanceCharge    *AllowanceCharge   `json:"allowanceCharge,omitempty"`
+	Delivery           Delivery           `json:"delivery,omitempty"`
+	OrderLineReference OrderLineReference `json:"orderLineReference,omitempty"`
+	Price              Price              `json:"price,omitempty"`
 }
 
-type InvoiceLineItemAllowanceCharge struct {
-	Amount                  float64 `json:"amount"`
-	ChargeIndicator         bool    `json:"chargeIndicator"`
-	MultiplierFactorNumeric float64 `json:"multiplierFactorNumeric,omitempty"`
-}
+// func (i InvoiceLine) MarshalJSON() ([]byte, error) {
+// 	type Alias InvoiceLine
+// 	alias := Alias(i)
+// 	b, err := json.Marshal(alias)
+// 	if err != nil {
+// 		return b, err
+// 	}
 
-type InvoiceLineItemDelivery struct {
-	ActualDeliveryDate string `json:"actualDeliveryDate,omitempty"`
-}
+// 	// Options:
+// 	// * to map[string]interface{}
+// 	// fast json parser with query language
+// 	// to map[string]*json.RawMessage
+
+// 	v := make(map[string]json.RawMessage)
+// 	err = json.Unmarshal(b, &v)
+
+// 	// * loop omitempty's
+// 	// * unmarshal back to type
+// 	// * check for zero
+// 	// * remove entry from map
+// 	// * marshal map again
+
+// 	log.Fatal(v)
+
+// 	return json.Marshal(alias)
+// }
 
 type Item struct {
 	// An array holding the descriptions of the Business Document line items.
@@ -540,7 +578,7 @@ type PostalAddress struct {
 	// The postal code of the area in the postal address of the party. The
 	// identifier for an addressable group of properties according to the
 	// relevant national postal service, such as a ZIP code or Post Code.
-	PostalZOne string `json:"postalZone"`
+	PostalZone string `json:"postalZone"`
 
 	// The address line of the postal address of the party.
 	AddressLine string `json:"addressLine"`

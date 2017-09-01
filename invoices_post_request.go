@@ -10,7 +10,7 @@ type InvoicesPostRequestBody struct {
 	// Object holding the business content of the Invoice. Content is at some
 	// level based on Universal Business Language (UBL) standard version 2.1. It
 	// has also been extended by Basware so it is not strictly UBL.
-	Data Data `json:"data"`
+	Data Invoice `json:"data"`
 
 	// The way document to be routed, printing-always goes for printing as
 	// sender specific processing, only-eInvoicing goes for normal processing as

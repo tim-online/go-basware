@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -255,7 +256,7 @@ func (c *Client) Do(req *http.Request, responseBody interface{}) (*http.Response
 
 	// try to decode body into interface parameter
 	err = json.NewDecoder(httpResp.Body).Decode(responseBody)
-	if err != nil {
+	if err != nil && err != io.EOF {
 		// create a simple error response
 		errorResponse := &ErrorResponse{Response: httpResp}
 		errorResponse.Errors.Message = err.Error()
@@ -278,10 +279,11 @@ func CheckResponse(r *http.Response) error {
 		errorResponse.Errors.Message = err.Error()
 	}
 
-	if r.Header.Get("Content-Length") == "0" {
-		errorResponse.Errors.Message = r.Status
-		return errorResponse
-	}
+	// Don't check content-lenght: a created response, for example, has no body
+	// if r.Header.Get("Content-Length") == "0" {
+	// 	errorResponse.Errors.Message = r.Status
+	// 	return errorResponse
+	// }
 
 	if c := r.StatusCode; c >= 200 && c <= 299 {
 		return nil
@@ -298,7 +300,7 @@ func CheckResponse(r *http.Response) error {
 		return errorResponse
 	}
 
-	// convert xml to struct
+	// convert json to struct
 	err = json.Unmarshal(data, errorResponse)
 	if err != nil {
 		errorResponse.Errors.Message = err.Error()
@@ -360,6 +362,10 @@ func (err Errors) Error() string {
 type ValidationErrors []ValidationError
 
 func (errs ValidationErrors) Error() string {
+	if len(errs) == 0 {
+		return ""
+	}
+
 	var errors error
 	for _, err := range errs {
 		errors = multierror.Append(errors, err)
@@ -376,7 +382,7 @@ func (e ValidationError) Error() string {
 	return fmt.Sprintf("%s: %s", e.FieldID, e.FieldMessage)
 }
 
-func (r *ErrorResponse) Error() string {
+func (r ErrorResponse) Error() string {
 	return fmt.Sprintf("%v %v: %d (%v %v)",
 		r.Response.Request.Method, r.Response.Request.URL, r.Response.StatusCode, r.Errors.Error(), r.Errors.Info)
 }
